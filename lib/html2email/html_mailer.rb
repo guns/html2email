@@ -1,12 +1,18 @@
 require 'net/smtp'
 
-module HtmlMailer
-  def send(messages, list)
-    check_recipients list
+class HtmlMailer
+  MAX_RECIPIENTS = 10
+
+  def initialize(messages, list)
+    @messages, @list = messages, list
+  end
+
+  def html_send
+    check_recipients @list
 
     Net::SMTP.start('localhost') do |smtp|
-      messages.each do |html|
-        smtp.send_message header(html) + html, from_addr, list
+      @messages.each do |html|
+        smtp.send_message header(html) + html, from_addr, @list
       end
     end
   # user may not have a local mail server; let them down gentle
@@ -16,8 +22,6 @@ module HtmlMailer
     warn $!.to_s
     return nil
   end
-
-  private
 
   def from_addr
     "do-not-reply@#{ENV['HOSTNAME'] || 'localhost'}"
@@ -38,8 +42,9 @@ module HtmlMailer
   def check_recipients(list)
     if list.empty?
       raise '# No recipients defined for email test!'
-    elsif list.size > 10
-      raise "# Too many recipients defined! You shouldn't need more than ten"
+    elsif list.size > MAX_RECIPIENTS
+      raise "# Too many recipients defined! You shouldn't need any more than " +
+            MAX_RECIPIENTS.to_s
     else
       warn "# Sending test to #{list.join ', '}"
     end

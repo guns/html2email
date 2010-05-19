@@ -1,7 +1,5 @@
 require 'optparse'
 require 'fileutils'
-require 'tempfile'
-require 'tilt'
 require 'html2email/html_email'
 require 'html2email/html_mailer'
 
@@ -64,15 +62,18 @@ class Html2Email
   # Command line interface
   def run
     options.parse! @args
-
     messages = []
+
     process(@args).each do |infile, outfile|
       htmlemail = HtmlEmail.new infile, @opts[:layout], @opts
-      write (messages << htmlemail.render), outfile
+      write (html = htmlemail.render), outfile
+      messages << html
       @opts[:test_recipients] += htmlemail.test_recipients
     end
 
-    HtmlMailer.send messages, @opts[:test_recipients].uniq if @opts[:send_test]
+    if @opts[:send_test]
+      HtmlMailer.new(messages, @opts[:test_recipients].uniq).html_send
+    end
   rescue
     abort $!.to_s
   ensure

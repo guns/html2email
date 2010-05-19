@@ -1,5 +1,5 @@
-require 'tempfile' unless defined? Tempfile
-require 'tilt' unless defined? Tilt
+require 'tempfile'
+require 'tilt'
 require 'premailer'
 require 'html2email/context'
 
