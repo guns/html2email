@@ -74,8 +74,8 @@ class Html2Email
     end
 
     send_test messages, @opts[:test_recipients] if @opts[:send_test]
-  # rescue
-  #   abort $!.to_s
+  rescue
+    abort $!.to_s
   ensure
     FileUtils.rm_f(@tempfile) if @tempfile
   end
@@ -118,7 +118,9 @@ class Html2Email
       warn "# Sending test to #{list.join ', '}"
     end
 
-    from_addr = "#{ENV['USER'] || self.class}@#{ENV['HOSTNAME'] || self.class}"
+    page_title = lambda { |s| s[/<head.*?>.*?<title.*?>(.*?)<\/title>/m, 1] }
+    from_addr = "do-not-reply@#{ENV['HOSTNAME'] || 'localhost'}"
+
     begin
       Net::SMTP.start('localhost') do |smtp|
         messages.each do |file, html|
@@ -126,7 +128,7 @@ class Html2Email
             From: #{self.class} <#{from_addr}>
             MIME-Version: 1.0
             Content-type: text/html
-            Subject: #{self.class} test: #{file}\n
+            Subject: #{self.class} test: #{page_title.call html}\n
           }.gsub(/^ +/,'')
 
           smtp.send_message header + html, from_addr, list
