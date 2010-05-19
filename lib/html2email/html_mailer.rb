@@ -3,8 +3,11 @@ require 'net/smtp'
 class HtmlMailer
   MAX_RECIPIENTS = 10
 
+  attr_accessor :from_addr
+
   def initialize(messages, list)
     @messages, @list = messages, list
+    @from_addr = "do-not-reply@#{ENV['HOSTNAME'] || 'localhost'}"
   end
 
   def html_send
@@ -21,10 +24,6 @@ class HtmlMailer
   rescue
     warn $!.to_s
     return nil
-  end
-
-  def from_addr
-    "do-not-reply@#{ENV['HOSTNAME'] || 'localhost'}"
   end
 
   def header(html)
