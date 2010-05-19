@@ -9,7 +9,7 @@ require 'html2email/html_email'
 # Command line wrapper for creating and writing HtmlEmail objects
 #
 class Html2Email
-  VERSION = '0.1.0'
+  VERSION = '0.1.1'
 
   def initialize(args = [])
     @args, @opts = args, { :default_type => 'str', :test_recipients => [] }
