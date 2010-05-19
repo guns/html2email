@@ -8,6 +8,7 @@ class HtmlEmail
 
   def initialize(template, layout = nil, options = {})
     @template, @layout, @options = template, layout, options
+    @options[:default_type] ||= 'str'
   end
 
   # returns converted html string
@@ -15,7 +16,7 @@ class HtmlEmail
     buf = if @layout
       # run through template once to catch prebinding block
       tilt_render(@template, (context ||= Context.new)) rescue nil
-      # return the fill render with the new lexical bindings
+      # return the full render with the new lexical binding
       tilt_render(@layout, context) { tilt_render @template, context }
     else
       tilt_render @template, Context.new
