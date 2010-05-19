@@ -17,7 +17,14 @@ class HtmlEmail
   def render
     buf = if @layout
       # run through template once to catch prebinding block
-      tilt_render(@template) rescue nil
+      begin
+        tilt_render @template
+      rescue Context::PrebindingException
+      rescue
+        # some other StandardError was raised, probably a NameError;
+        # reset the context to minimize the leaky abstraction
+        @context = Context.new
+      end
       # return the full render with the new lexical binding
       tilt_render(@layout) { tilt_render @template }
     else
