@@ -22,7 +22,7 @@ class Context
   end
 
   def prebinding(&block)
-    return true if @binding
+    return if @binding
     @binding = (block.call; binding)
     raise PrebindingException
   end

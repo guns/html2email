@@ -9,24 +9,25 @@ class HtmlEmail
   def initialize(template, layout = nil, options = {})
     @template, @layout, @options = template, layout, options
     @options[:default_type] ||= 'str'
+    @context = Context.new
   end
 
   # returns converted html string
   def render
     buf = if @layout
       # run through template once to catch prebinding block
-      tilt_render(@template, (context ||= Context.new)) rescue nil
+      tilt_render(@template) rescue nil
       # return the full render with the new lexical binding
-      tilt_render(@layout, context) { tilt_render @template, context }
+      tilt_render(@layout) { tilt_render @template }
     else
-      tilt_render @template, Context.new
+      tilt_render @template
     end
     inline_css buf
   end
 
   private
 
-  def tilt_render(file, scope = nil)
+  def tilt_render(file, scope = @context)
     klass = Tilt[file] || Tilt.mappings[@options[:default_type]]
     klass.new(file).render(scope) { yield if block_given? }
   end
@@ -50,7 +51,7 @@ class HtmlEmail
   def inject_css(html, stylesheet)
     return html if stylesheet.nil? || !File.exist?(stylesheet)
     # embed stylesheet in <head> tag
-    css = tilt_render(@options[:stylesheet], Context.new)
+    css = tilt_render @options[:stylesheet], Context.new
     css = "<style type='text/css' media='screen'>#{css}</style>"
     html.sub /(<head.*?>)/, '\1' + css
   end
