@@ -39,9 +39,9 @@ class HtmlEmail
 
   private
 
-  def tilt_render(file, scope = @context)
+  def tilt_render(file)
     klass = Tilt[file] || Tilt.mappings[@options[:default_type]]
-    klass.new(file).render(scope) { yield if block_given? }
+    klass.new(file).render(@context) { yield if block_given? }
   end
 
   def inline_css(html)
@@ -63,7 +63,7 @@ class HtmlEmail
   def inject_css(html, stylesheet)
     return html if stylesheet.nil? || !File.exist?(stylesheet)
     # embed stylesheet in <head> tag
-    css = tilt_render @options[:stylesheet], Context.new
+    css = tilt_render @options[:stylesheet]
     css = "<style type='text/css' media='screen'>#{css}</style>"
     html.sub /(<head.*?>)/, '\1' + css
   end
