@@ -1,9 +1,9 @@
 require 'optparse'
 require 'fileutils'
 require 'tempfile'
-require 'net/smtp'
 require 'tilt'
 require 'html2email/html_email'
+require 'html2email/html_mailer'
 
 #
 # Command line wrapper for creating and writing HtmlEmail objects
@@ -67,13 +67,12 @@ class Html2Email
 
     messages = []
     process(@args).each do |infile, outfile|
-      htmlemail = HtmlEmail.new(infile, @opts[:layout], @opts)
-      write (html = htmlemail.render), outfile
-      messages << [File.basename(infile), html]
+      htmlemail = HtmlEmail.new infile, @opts[:layout], @opts
+      write (messages << htmlemail.render), outfile
       @opts[:test_recipients] += htmlemail.test_recipients
     end
 
-    send_test messages, @opts[:test_recipients] if @opts[:send_test]
+    HtmlMailer.send messages, @opts[:test_recipients].uniq if @opts[:send_test]
   rescue
     abort $!.to_s
   ensure
@@ -104,39 +103,6 @@ class Html2Email
     else
       warn "# Writing #{dst}"
       File.open(dst, 'w') { |f| f.write string }
-    end
-  end
-
-  def send_test(messages, list)
-    if list.empty?
-      warn '# No recipients defined for email test!'
-      return
-    elsif list.size > 10
-      warn "# Too many recipients defined! You shouldn't need more than ten"
-      return
-    else
-      warn "# Sending test to #{list.join ', '}"
-    end
-
-    page_title = lambda { |s| s[/<head.*?>.*?<title.*?>(.*?)<\/title>/m, 1] }
-    from_addr = "do-not-reply@#{ENV['HOSTNAME'] || 'localhost'}"
-
-    begin
-      Net::SMTP.start('localhost') do |smtp|
-        messages.each do |file, html|
-          header = %Q{\
-            From: #{self.class} <#{from_addr}>
-            MIME-Version: 1.0
-            Content-type: text/html
-            Subject: #{self.class} test: #{page_title.call html}\n
-          }.gsub(/^ +/,'')
-
-          smtp.send_message header + html, from_addr, list
-        end
-      end
-    # user may not have a local mail server; let them down gentle
-    rescue Errno::ECONNREFUSED
-      warn '# Connection to localhost:25 refused! Is your mailserver running?'
     end
   end
 end
