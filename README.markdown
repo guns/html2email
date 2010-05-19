@@ -4,6 +4,7 @@ Html2Email
 TODO
 ----
 
+* Live mode (auto-compile with webrick server)
 * Test suite
 * Mail configuration
 * Maybe import ActionView or Sinatra::Helpers?
