@@ -9,6 +9,7 @@ class HtmlEmail
   def initialize(template, layout = nil, options = {})
     @template, @layout, @options = template, layout, options
     @options[:default_type] ||= 'str'
+    @test_recipients = []
     @context = Context.new
   end
 
@@ -23,6 +24,10 @@ class HtmlEmail
       tilt_render @template
     end
     inline_css buf
+  end
+
+  def test_recipients
+    @context.test_recipients
   end
 
   private

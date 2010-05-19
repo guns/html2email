@@ -18,13 +18,18 @@ class Context
   end
 
   def initialize
-    @binding = nil
+    @binding, @test_recipients = nil, []
   end
 
   def prebinding(&block)
     return if @binding
     @binding = (block.call; binding)
     raise PrebindingException
+  end
+
+  attr_accessor :test_recipients
+  def add_test_recipients(*list)
+    @test_recipients += list.flatten
   end
 
   def link_to(text, url, opts = {})

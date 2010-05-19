@@ -5,7 +5,7 @@ TODO
 ----
 
 * Test suite
-* Send html email to list of test email addresses
+* Mail configuration
 * Maybe import ActionView or Sinatra::Helpers?
 
 LICENSE

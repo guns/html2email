@@ -1,6 +1,7 @@
 require 'optparse'
 require 'fileutils'
 require 'tempfile'
+require 'net/smtp'
 require 'tilt'
 require 'html2email/html_email'
 
@@ -64,10 +65,15 @@ class Html2Email
   def run
     options.parse! @args
 
+    messages = []
     process(@args).each do |infile, outfile|
-      html = HtmlEmail.new(infile, @opts[:layout], @opts).render
-      write html, outfile
+      htmlemail = HtmlEmail.new(infile, @opts[:layout], @opts)
+      write (html = htmlemail.render), outfile
+      messages << [File.basename(infile), html]
+      @opts[:test_recipients] += htmlemail.test_recipients
     end
+
+    send_test messages, @opts[:test_recipients] if @opts[:send_test]
   # rescue
   #   abort $!.to_s
   ensure
@@ -98,6 +104,37 @@ class Html2Email
     else
       warn "# Writing #{dst}"
       File.open(dst, 'w') { |f| f.write string }
+    end
+  end
+
+  def send_test(messages, list)
+    if list.empty?
+      warn '# No recipients defined for email test!'
+      return
+    elsif list.size > 10
+      warn "# Too many recipients defined! You shouldn't need more than ten"
+      return
+    else
+      warn "# Sending test to #{list.join ', '}"
+    end
+
+    from_addr = "#{ENV['USER'] || self.class}@#{ENV['HOSTNAME'] || self.class}"
+    begin
+      Net::SMTP.start('localhost') do |smtp|
+        messages.each do |file, html|
+          header = %Q{\
+            From: #{self.class} <#{from_addr}>
+            MIME-Version: 1.0
+            Content-type: text/html
+            Subject: #{self.class} test: #{file}\n
+          }.gsub(/^ +/,'')
+
+          smtp.send_message header + html, from_addr, list
+        end
+      end
+    # user may not have a local mail server; let them down gentle
+    rescue Errno::ECONNREFUSED
+      warn '# Connection to localhost:25 refused! Is your mailserver running?'
     end
   end
 end
