@@ -12,7 +12,7 @@ class Html2Email
   VERSION = '0.1.0'
 
   def initialize(args = [])
-    @args, @opts = args, { :default_type => 'str' }
+    @args, @opts = args, { :default_type => 'str', :test_recipients => [] }
   end
 
   def options
