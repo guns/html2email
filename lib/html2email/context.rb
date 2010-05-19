@@ -7,7 +7,7 @@ class Context
   include Rack::Utils
   alias_method :h, :escape_html
 
-  class PrebindingException < StandardError; end
+  class PrebindingException < Exception; end
 
   class Attr < Hash
     def to_s
