@@ -5,6 +5,7 @@ TODO
 ----
 
 * Live mode (auto-compile with webrick server)
+* Partials
 * Test suite
 * Mail configuration
 * Maybe import ActionView or Sinatra::Helpers?

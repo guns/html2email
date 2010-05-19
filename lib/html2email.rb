@@ -39,7 +39,7 @@ class Html2Email
       end
 
       mappings = Tilt.mappings.keys.join(', ')
-      opt.on('-t', '--type FORMAT',
+      opt.on('-t', '--default-type FORMAT',
              'Fall back to FORMAT when template type cannot be inferred from',
              "a file's extension, e.g. input from STDIN. " +
              "Defaults to `#{@opts[:default_type]}'") do |arg|
@@ -50,8 +50,8 @@ class Html2Email
         end
       end
 
-      opt.on('-s', '--send [email,email]', Array,
-             'Send rendered html to recipients; list can also be defined',
+      opt.on('-e', '--email [addr,addr]', Array,
+             'Email rendered html to recipients; list can also be defined',
              'within the template') do |arg|
         @opts[:send_test] = true
         @opts[:test_recipients] = arg || []
