@@ -49,9 +49,9 @@ class HtmlEmail
     base = File.expand_path(File.dirname(@layout || @template))
     # any relative links are resolved by Premailer relative to the filepath
     Tempfile.open(self.class.to_s, base) do |tmp|
-      html = inject_css(html, @options[:stylesheet])
+      html = inject_css html, @options[:stylesheet]
       tmp.write html; tmp.rewind
-      pre = Premailer.new(tmp.path, :warn_level => Premailer::Warnings::RISKY)
+      pre = Premailer.new tmp.path, :warn_level => Premailer::Warnings::RISKY
       pre.warnings.each do |w|
         warn "#{w[:message]} (#{w[:level]}) " +
              "may not render properly in #{w[:clients]}"

@@ -74,8 +74,6 @@ class Html2Email
     if @opts[:send_test]
       HtmlMailer.new(messages, @opts[:test_recipients].uniq).html_send
     end
-  rescue
-    abort $!.to_s
   ensure
     FileUtils.rm_f(@tempfile) if @tempfile
   end
