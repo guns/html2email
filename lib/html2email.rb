@@ -29,10 +29,11 @@ class Html2Email
       end
 
       opt.on('-c', '--css STYLESHEET',
-             'Embed styles from STYLESHEET; styles are inserted at the top',
-             'of the <head> element, so that element must be present.',
-             'Any CSS files referenced by link[rel=stylesheet] elements',
-             'are automatically included and embedded') do |arg|
+             'Embed styles from STYLESHEET, which can be written in any of the',
+             'supported FORMATs. Styles are inserted at the top of the <head>',
+             'element, so that element must be present.',
+             'Note that any CSS files referenced by link[rel=stylesheet]',
+             'elements are automatically included and embedded') do |arg|
         @opts[:stylesheet] = File.expand_path arg
       end
 
@@ -55,7 +56,7 @@ class Html2Email
         @opts[:test_recipients] = arg || []
       end
 
-      opt.separator "\nFORMAT types:\n#{mappings}"
+      opt.separator "\nSupported FORMATs:\n#{mappings}"
     end
   end
 
