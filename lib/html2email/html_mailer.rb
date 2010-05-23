@@ -30,7 +30,7 @@ class HtmlMailer
     %{From: Html2Email <#{from_addr}>
       MIME-Version: 1.0
       Content-type: text/html
-      Subject: Html2Email test: #{page_title html}\n
+      Subject: Html2Email test#{title = page_title(html) && ": #{title}"}\n
     }.gsub(/^ +/,'')
   end
 
