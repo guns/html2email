@@ -21,9 +21,6 @@ class HtmlMailer
   # user may not have a local mail server; let them down gentle
   rescue Errno::ECONNREFUSED
     warn '# Connection to localhost:25 refused! Is your mailserver running?'
-  rescue
-    warn $!.to_s
-    return nil
   end
 
   def header(html)
