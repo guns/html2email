@@ -45,10 +45,10 @@ class HtmlEmail
 
   def inline_css(html, stylesheet)
     # Premailer only works on files, hence the tempfile
-    base = File.expand_path(File.dirname(@layout || @template))
+    base = File.expand_path File.dirname(@layout || @template)
     # any relative links are resolved by Premailer relative to the filepath
     Tempfile.open(self.class.to_s, base) do |tmp|
-      html = inject_css html, stylesheet
+      html = embed_css html, stylesheet
       tmp.write html; tmp.rewind
       pre = Premailer.new tmp.path, :warn_level => Premailer::Warnings::RISKY
       pre.warnings.each do |w|
@@ -59,7 +59,7 @@ class HtmlEmail
     end
   end
 
-  def inject_css(html, stylesheet)
+  def embed_css(html, stylesheet)
     return html if stylesheet.nil? || !File.exist?(stylesheet)
     # embed stylesheet in <head> tag
     css = tilt_render stylesheet
