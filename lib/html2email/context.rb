@@ -27,7 +27,7 @@ class Context
     raise PrebindingException
   end
 
-  attr_accessor :test_recipients
+  attr_reader :test_recipients
   def add_test_recipients(*list)
     @test_recipients += list.flatten
   end

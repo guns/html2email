@@ -9,7 +9,6 @@ class HtmlEmail
   def initialize(template, layout = nil, options = {})
     @template, @layout, @options = template, layout, options
     @options[:default_type] ||= 'str'
-    @test_recipients = []
     @context = Context.new
   end
 
@@ -30,7 +29,7 @@ class HtmlEmail
     else
       tilt_render @template
     end
-    inline_css buf
+    inline_css buf, @options[:stylesheet]
   end
 
   def test_recipients
@@ -44,12 +43,12 @@ class HtmlEmail
     klass.new(file).render(@context) { yield if block_given? }
   end
 
-  def inline_css(html)
+  def inline_css(html, stylesheet)
     # Premailer only works on files, hence the tempfile
     base = File.expand_path(File.dirname(@layout || @template))
     # any relative links are resolved by Premailer relative to the filepath
     Tempfile.open(self.class.to_s, base) do |tmp|
-      html = inject_css html, @options[:stylesheet]
+      html = inject_css html, stylesheet
       tmp.write html; tmp.rewind
       pre = Premailer.new tmp.path, :warn_level => Premailer::Warnings::RISKY
       pre.warnings.each do |w|
@@ -63,7 +62,7 @@ class HtmlEmail
   def inject_css(html, stylesheet)
     return html if stylesheet.nil? || !File.exist?(stylesheet)
     # embed stylesheet in <head> tag
-    css = tilt_render @options[:stylesheet]
+    css = tilt_render stylesheet
     css = "<style type='text/css' media='screen'>#{css}</style>"
     html.sub /(<head.*?>)/, '\1' + css
   end

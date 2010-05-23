@@ -10,7 +10,7 @@ class Html2Email
   VERSION = '0.1.1'
 
   def initialize(args = [])
-    @args, @opts = args, { :default_type => 'str', :test_recipients => [] }
+    @args, @options = args, { :default_type => 'str', :test_recipients => [] }
   end
 
   def options
@@ -24,38 +24,29 @@ class Html2Email
       }.gsub(/^ +/,'')
 
       opt.on('-l', '--layout FILE', 'Use FILE as a layout template') do |arg|
-        @opts[:layout] = File.expand_path arg
+        @options[:layout] = File.expand_path arg
       end
 
-      opt.on('-c', '--css STYLESHEET',
-             'Embed styles from STYLESHEET, which can be written in any of the',
-             'supported FORMATs. Styles are inserted at the top of the <head>',
-             'element, so that element must be present.',
-             'Note that any CSS files referenced by link[rel=stylesheet]',
-             'elements are automatically included and embedded') do |arg|
-        @opts[:stylesheet] = File.expand_path arg
-      end
-
-      mappings = Tilt.mappings.keys.join(', ')
+      types = Tilt.mappings.keys
       opt.on('-t', '--default-type FORMAT',
              'Fall back to FORMAT when template type cannot be inferred from',
              "a file's extension, e.g. input from STDIN. " +
-             "Defaults to `#{@opts[:default_type]}'") do |arg|
-        if Tilt.mappings.keys.include? arg
-          @opts[:default_type] = arg
+             "Defaults to `#{@options[:default_type]}'") do |arg|
+        if types.include? arg
+          @options[:default_type] = arg
         else
-          raise ArgumentError, "Default type must be one of: #{mappings}"
+          raise ArgumentError, "Default type must be one of: #{types.join ', '}"
         end
       end
 
       opt.on('-e', '--email [addr,addr]', Array,
-             'Email rendered html to recipients; list can also be defined',
+             'Send rendered html to recipients; list can also be defined',
              'within the template') do |arg|
-        @opts[:send_test] = true
-        @opts[:test_recipients] = arg || []
+        @options[:email_test] = true
+        @options[:test_recipients] = arg || []
       end
 
-      opt.separator "\nSupported FORMATs:\n#{mappings}"
+      opt.separator "\nSupported FORMATs:\n#{types.join ', '}"
     end
   end
 
@@ -65,14 +56,14 @@ class Html2Email
     messages = []
 
     process(@args).each do |infile, outfile|
-      htmlemail = HtmlEmail.new infile, @opts[:layout], @opts
+      htmlemail = HtmlEmail.new infile, @options[:layout], @options
       write (html = htmlemail.render), outfile
       messages << html
-      @opts[:test_recipients] += htmlemail.test_recipients
+      @options[:test_recipients] += htmlemail.test_recipients
     end
 
-    if @opts[:send_test]
-      HtmlMailer.new(messages, @opts[:test_recipients].uniq).html_send
+    if @options[:email_test]
+      HtmlMailer.new(messages, @options[:test_recipients].uniq).html_send
     end
   ensure
     FileUtils.rm_f(@tempfile) if @tempfile
@@ -84,7 +75,7 @@ class Html2Email
     # read from stdin if no file args
     if list.empty?
       # both Tilt and Premailer expect files as inputs; so we use a tempfile
-      @tempfile = Tempfile.new [self.class.to_s, '.' + @opts[:default_type]]
+      @tempfile = Tempfile.new [self.class.to_s, '.' + @options[:default_type]]
       @tempfile.write $stdin.read; @tempfile.rewind
       [[@tempfile.path, $stdout]]
     else
