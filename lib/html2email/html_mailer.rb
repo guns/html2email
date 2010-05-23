@@ -13,9 +13,9 @@ class HtmlMailer
   def html_send
     check_recipients @list
 
-    Net::SMTP.start('localhost') do |smtp|
+    Net::SMTP.start 'localhost' do |smtp|
       @messages.each do |html|
-        smtp.send_message header(html) + html, from_addr, @list
+        smtp.send_message header(page_title(html)) + html, from_addr, @list
       end
     end
   # user may not have a local mail server; let them down gentle
@@ -23,11 +23,11 @@ class HtmlMailer
     warn '# Connection to localhost:25 refused! Is your mailserver running?'
   end
 
-  def header(html)
+  def header(title)
     %{From: Html2Email <#{from_addr}>
       MIME-Version: 1.0
       Content-type: text/html
-      Subject: Html2Email test#{title = page_title(html) && ": #{title}"}\n
+      Subject: Html2Email test#{": #{title}" if title}\n
     }.gsub(/^ +/,'')
   end
 
