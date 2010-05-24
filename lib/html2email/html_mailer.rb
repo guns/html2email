@@ -28,7 +28,7 @@ class HtmlMailer
     %{From: Html2Email <#{from_addr}>
       MIME-Version: 1.0
       Content-type: text/html
-      Subject: Html2Email test#{": #{title}" if title}\n
+      Subject: Html2Email test#{": #{title}" if title && !title.empty?}\n
     }.gsub(/^ +/,'')
   end
 
