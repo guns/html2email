@@ -1,4 +1,5 @@
-Html2Email
+Html2Email: Tilt + Premailer + SMTP
+http://github.com/guns/html2email
 Copyright (c) 2010 Sung Pae <sung@metablu.com>
 
 Published under the MIT License:
