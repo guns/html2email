@@ -1,0 +1,3 @@
+[submodule "lib/html2email/vendor/premailer"]
+	path = lib/html2email/vendor/premailer
+	url = git@github.com:guns/premailer.git
