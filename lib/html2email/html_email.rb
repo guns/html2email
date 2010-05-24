@@ -1,7 +1,7 @@
 require 'tempfile'
 require 'tilt'
-require 'premailer'
 require 'html2email/context'
+require 'html2email/vendor/premailer/lib/premailer'
 
 class HtmlEmail
   def initialize(template, layout = nil, options = {})
