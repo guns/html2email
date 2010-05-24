@@ -47,7 +47,7 @@ class HtmlEmail
     base = File.expand_path File.dirname(@layout || @template)
     # any relative links are resolved by Premailer relative to the filepath
     Tempfile.open(self.class.to_s, base) do |tmp|
-      tmp.write embed_css(html); tmp.rewind
+      tmp.write html; tmp.rewind
       pre = Premailer.new tmp.path, :warn_level => Premailer::Warnings::RISKY
       pre.warnings.each do |w|
         warn "#{w[:message]} (#{w[:level]}) " +
@@ -55,13 +55,5 @@ class HtmlEmail
       end
       pre.to_inline_css
     end
-  end
-
-  # Find linked stylesheets and embed them in place
-  def embed_css(html)
-    # embed stylesheet in <head> tag
-    # css = tilt_render stylesheet
-    # css = "<style type='text/css' media='screen'>#{css}</style>"
-    # html.sub /(<head.*?>)/, '\1' + css
   end
 end
