@@ -4,8 +4,6 @@ require 'premailer'
 require 'html2email/context'
 
 class HtmlEmail
-  attr_accessor :options
-
   def initialize(template, layout = nil, options = {})
     @template, @layout, @options = template, layout, options
     @options[:default_type] ||= 'str'
@@ -29,7 +27,7 @@ class HtmlEmail
     else
       tilt_render @template
     end
-    inline_css buf, @options[:stylesheet]
+    inline_css buf
   end
 
   def test_recipients
@@ -43,13 +41,13 @@ class HtmlEmail
     klass.new(file).render(@context) { yield if block_given? }
   end
 
-  def inline_css(html, stylesheet)
+  # use Premailer to embed styles
+  def inline_css(html)
     # Premailer only works on files, hence the tempfile
     base = File.expand_path File.dirname(@layout || @template)
     # any relative links are resolved by Premailer relative to the filepath
     Tempfile.open(self.class.to_s, base) do |tmp|
-      html = embed_css html, stylesheet
-      tmp.write html; tmp.rewind
+      tmp.write embed_css(html); tmp.rewind
       pre = Premailer.new tmp.path, :warn_level => Premailer::Warnings::RISKY
       pre.warnings.each do |w|
         warn "#{w[:message]} (#{w[:level]}) " +
@@ -59,11 +57,11 @@ class HtmlEmail
     end
   end
 
-  def embed_css(html, stylesheet)
-    return html if stylesheet.nil? || !File.exist?(stylesheet)
+  # Find linked stylesheets and embed them in place
+  def embed_css(html)
     # embed stylesheet in <head> tag
-    css = tilt_render stylesheet
-    css = "<style type='text/css' media='screen'>#{css}</style>"
-    html.sub /(<head.*?>)/, '\1' + css
+    # css = tilt_render stylesheet
+    # css = "<style type='text/css' media='screen'>#{css}</style>"
+    # html.sub /(<head.*?>)/, '\1' + css
   end
 end
