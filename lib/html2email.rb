@@ -39,11 +39,16 @@ class Html2Email
         end
       end
 
-      opt.on('-e', '--email [addr,addr]', Array,
+      opt.on('-e', '--email [ADDR,ADDR]', Array,
              'Send rendered html to recipients; list can also be defined',
              'within the template') do |arg|
         @options[:email_test] = true
         @options[:test_recipients] = arg || []
+      end
+
+      opt.on('--stdout',
+             'Write to STDOUT when an outfile is not explicitly specified') do
+        @options[:stdout] = true
       end
 
       opt.separator "\nSupported FORMATs:\n#{types.join ', '}"
@@ -79,10 +84,17 @@ class Html2Email
       @tempfile.write $stdin.read; @tempfile.rewind
       [[@tempfile.path, $stdout]]
     else
-      list.map { |a| a.split(':', 2) }.map do |i,o|
-        # default to file minus extname if no output file specified
-        (o.nil? || o.empty?) && o = (i[/.html$/] ? i : i.chomp(File.extname i))
-        [File.expand_path(i), File.expand_path(o)]
+      list.map { |a| a.split ':', 2 }.map do |i,o|
+        out = if o.nil? || o.empty?
+          if @options[:stdout]
+            $stdout
+          else
+            File.expand_path(i[/.html$/] ? i : i.chomp(File.extname i))
+          end
+        else
+          File.expand_path o
+        end
+        [File.expand_path(i), out]
       end
     end
   end
