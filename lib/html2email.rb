@@ -7,7 +7,7 @@ require 'html2email/html_mailer'
 # Command line wrapper for creating and writing HtmlEmail objects
 #
 class Html2Email
-  VERSION = '0.1.3'
+  VERSION = '0.1.4'
 
   def initialize(args = [])
     @args, @options = args, { :default_type => 'str', :test_recipients => [] }
