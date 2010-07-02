@@ -84,17 +84,19 @@ class Html2Email
       @tempfile.write $stdin.read; @tempfile.rewind
       [[@tempfile.path, $stdout]]
     else
-      list.map { |a| a.split ':', 2 }.map do |i,o|
-        out = if o.nil? || o.empty?
+      list.map { |a| a.split ':', 2 }.map do |infile, outfile|
+        out = if outfile.nil? || outfile.empty?
           if @options[:stdout]
             $stdout
           else
-            File.expand_path(i[/.html$/] ? i : i.chomp(File.extname i))
+            name = infile.chomp(File.extname infile)
+            name << '.html' unless name[/.html$/]
+            File.expand_path name
           end
         else
-          File.expand_path o
+          File.expand_path outfile
         end
-        [File.expand_path(i), out]
+        [File.expand_path(infile), out]
       end
     end
   end
