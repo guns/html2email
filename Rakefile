@@ -20,12 +20,12 @@ def gemspec
                 .split("\n").map { |f| "#{base}/#{f}" }
     gem.add_dependency 'rack'
     gem.add_dependency 'tilt'
-    # Premailer
+    # vendored Premailer dependencies
     gem.add_dependency 'hpricot', '>= 0.6'
     gem.add_dependency 'css_parser', '>= 0.9.1'
     gem.add_dependency 'text-reform', '>= 0.2.0'
     gem.add_dependency 'htmlentities', '>= 4.0.0'
-    # gem.add_development_dependency 'rspec'
+    gem.add_development_dependency 'rspec'
   end
 end
 
