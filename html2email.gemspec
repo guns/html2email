@@ -2,11 +2,11 @@
 
 Gem::Specification.new do |s|
   s.name = %q{html2email}
-  s.version = "0.1.4"
+  s.version = "0.1.5"
 
   s.required_rubygems_version = Gem::Requirement.new(">= 0") if s.respond_to? :required_rubygems_version=
   s.authors = ["guns"]
-  s.date = %q{2010-07-02}
+  s.date = %q{2010-10-15}
   s.default_executable = %q{html2email}
   s.description = %q{Convert ruby html templates to an email compatible form.}
   s.email = %q{sung@metablu.com}
